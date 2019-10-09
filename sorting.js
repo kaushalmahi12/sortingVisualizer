@@ -1,21 +1,23 @@
 
 function SortingVisualizer() {
-    var canvas, selection, bubble, merge, insertion, arr, color, current, speed, speedVal;
+    var canvas, selection, bubble, quick, insertion, arr, color, current, speed, speedVal, barWidth, offsetStep;
     this.init = function() {
         canvas = document.getElementById("canvas");
         selection = document.getElementById("selection");
         bubble = document.getElementById("bubble");
-        merge = document.getElementById("merge");
+        quick = document.getElementById("quick");
         insertion = document.getElementById("insertion");
         bubble.addEventListener("click", bubbleSort);
         selection.addEventListener("click", selectionSort);
-        merge.addEventListener("click", mergeSort);
+        quick.addEventListener("click", quickSort);
         insertion.addEventListener("click", insertionSort);
-        color = ["red", "green", "yellow", "blue", "pink"];
+        color = ["red", "green", "yellow", "blue", "pink", "purple", "peru", "palegreen", "silver", "snow", "goldenrod"];
         arr = document.getElementById("arr");
         speed = document.getElementById("speed");
         speed.addEventListener("input", changeSpeed);
         speedVal = 100;
+        barWidth = 10;
+        offsetStep = 0.5;
     };
 
     var changeSpeed = function(evt) {
@@ -35,7 +37,13 @@ function SortingVisualizer() {
                 res.push(parseInt(el));
             }
         }
+        if (res.length === 0) {
+            alert("enter a valid size");
+            return [];
+        }
         var sz = res[0];
+        barWidth = Math.floor((canvas.width) * 0.95 / sz);
+        offsetStep = ((canvas.width) * 0.05 / sz);
         res = [];
         for (var i=0; i<sz; i++) {
             res.push(20 + Math.floor(Math.random() * 550));
@@ -87,39 +95,39 @@ function SortingVisualizer() {
         setTimeout(startBubbleSort, speedVal, arr, i-1);
     }
 
-    var mergeSort = function() {
+    var quickSort = function() {
         var arr = getArray();
-        current = "merge";
-        startMergeSort(arr, 0, arr.length-1);
+        current = "quick";
+        startQuickSort(arr, 0, arr.length-1);
     };
 
-    var startMergeSort = function(arr, l, r) {
-        if (l >= r || current != "merge") return;
-        var mid = Math.floor((l+r)/2);
-        startMergeSort(arr, l, mid);
-        startMergeSort(arr, mid+1, r);
-        mergeArray(arr, l, r, mid);
+    var startQuickSort = function(arr, l, r) {
+        if (l >= r || current != "quick") return;
+        var mid = partition(arr, l, r);
         draw(arr);
+        setTimeout(startQuickSort, speedVal, arr, l, mid-1);
+        setTimeout(startQuickSort, speedVal, arr, mid+1, r);
     }
 
-    var mergeArray = function(arr, l, r, mid) {
-        var res = [];
-        var i = l, j = mid+1;
-        while (i<=mid || j<=r) {
-            if (i > mid) {
-                res.push(arr[j++]);
-            } else if (j > r) {
-                res.push(arr[i++]);
-            } else if (arr[i] < arr[j]) {
-                res.push(arr[i++]);
-            } else {
-                res.push(arr[j++]);
+    var swap = function(arr ,i, j) {
+        var tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    };
+
+    var partition = function(arr, l, r) {
+        var randInd = l + Math.floor(Math.random() * (r-l));
+        swap(arr, l, randInd);
+        var piv = arr[l];
+        var ind = l+1;
+        for (var j=l+1; j<=r; j++) {
+            if (piv >= arr[j]) {
+                swap(arr, ind, j);
+                ind += 1;
             }
         }
-        var x= l;
-        for(i=0; i<res.length; i++) {
-            arr[x++] = res[i];
-        }
+        swap(arr, ind-1, l);
+        return ind-1;
     }
 
     var insertionSort = function() {
@@ -145,15 +153,16 @@ function SortingVisualizer() {
 
 
     draw = function(arr) {
-        var ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var pen = canvas.getContext("2d");
+        pen.clearRect(0, 0, canvas.width, canvas.height);
         var offset = 0;
+        //use ctx.save and restore carefully
         for (var i=0; i<arr.length; i++) {
-            ctx.save();
             let randomColor = getRandomColor();
-            ctx.fillStyle = randomColor;
-            ctx.fillRect(offset, canvas.height-arr[i], 7, arr[i]);
-            offset += 10;
+            pen.fillStyle = randomColor;
+            pen.fillRect(offset, canvas.height-arr[i], barWidth, arr[i]);
+            offset += barWidth + offsetStep;
         }
+        pen.restore();
     }
 }
