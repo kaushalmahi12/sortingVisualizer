@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <title>
+            Visualizing sorting algorithms
+        </title>
+
+        <script type="text/javascript" src="./sorting.js"></script>
+
+        <style type="text/css">
+	    html, body {
+		    margin: 0px;
+	    }
+	    canvas {
+		    display: block;
+            background-color: black;
+            border: 2px solid orange;
+	    }
+        </style>
+
+    </head>
+    <body>
+        <canvas id="canvas" height="600" width="1300">
+        </canvas>
+        <input type="text" placeholder="enter the size of the array to be sorted" id="arr">
+        <button id="selection">selectionSort</button>
+        <button id="bubble">bubbleSort</button>
+        <button id="insertion">insertionSort</button>
+        <button id="merge">mergeSort</button>
+
+        <input type="text" placeholder="enter speed in millisec" id="speed">
+
+        <script>
+            window.onload = (ev) => {
+                var visualizer = new SortingVisualizer();
+                visualizer.init();
+            }
+        </script>
+    </body>
+</html>
